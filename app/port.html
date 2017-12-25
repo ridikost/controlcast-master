@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ControlCast</title>
+    <link rel="stylesheet" type="text/css" href="css/open_sans.css">
+    <style>
+        body {
+            font: 12px/140% "Open Sans", sans-serif;
+            margin: 10px;
+            background: #CCC;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        p {
+            margin: 5px 0 10px 0;
+        }
+
+        button {
+            margin: 5px;
+            width: 80px;
+            height: 28px;
+            font-size: 16px;
+        }
+
+        input {
+            font-size: 18px;
+            width: 80px;
+        }
+    </style>
+    <script>
+      'use strict';
+      const remote = require('electron').remote;
+      const ipc = require('electron').ipcRenderer;
+      const Config = require('electron-config');
+      const config = new Config();
+
+      window.$ = window.jQuery = require('jquery');
+      require('./js/jquery/alphanum.min.js');
+
+      $(document).ready(() => {
+        const portInput = $('.port');
+        $(portInput).val(config.get('app.clr.port'));
+        $(portInput).keydown(e => {
+          if (e.which === 13) $('.ok').trigger('click');
+        });
+
+        $('.ok').click(() => {
+          ipc.send('set_port', parseInt($(portInput).val()));
+          remote.getCurrentWindow().close();
+        });
+
+        $('.cancel').click(() => {
+          remote.getCurrentWindow().close();
+        });
+
+        $(portInput).numeric({
+          allowMinus: false,
+          allowThouSep: false,
+          allowDecSep: false,
+          min: 1,
+          max: 65535
+        });
+
+      });
+    </script>
+</head>
+<body>
+<h2>CLR Port Number</h2>
+<p><input class="port" title="port" type="text" autofocus></p>
+<button class="cancel">Cancel</button>
+<button class="ok">OK</button>
+</body>
+</html>
